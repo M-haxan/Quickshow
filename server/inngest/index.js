@@ -1,0 +1,54 @@
+import  User  from "../models/User.js";
+import { Inngest } from "inngest";
+
+// Create a client to send and receive events
+export const inngest = new Inngest({ id: "movie-ticket-booking" });
+// inngest function to save user data to a database
+const syncUSerCreation = inngest.createFunction(
+    {id:'sync-user-from-clerk',
+    triggers:[{event:'clerk/user.created'}]
+    },
+    async({event})=>{
+        const {id, first_name, last_name, email_addresses, image_url} = event.data;
+        const userData ={
+            _id:id, 
+            email: email_addresses[0].email_address,
+            name: first_name + ' ' + last_name,
+            image: image_url,
+        }
+        await User.create(userData)
+    }
+)
+// inngest function to delete user data from a database
+const syncUserDeletion = inngest.createFunction(
+    {
+        id: 'delete-user-from-clerk',
+        triggers: [{ event: 'clerk/user.deleted' }]
+    },
+    async ({ event }) => {
+        const { id } = event.data;
+        
+        // id ki base par user ko database se delete kar dega
+        await User.findByIdAndDelete(id);
+    }
+);
+// 2. UPDATE: Inngest function to update existing user data
+const syncUserUpdation = inngest.createFunction(
+    {
+        id: 'update-user-from-clerk',
+        triggers: [{ event: 'clerk/user.updated' }]
+    },
+    async ({ event }) => {
+        const { id, first_name, last_name, email_addresses, image_url } = event.data;
+        const userData = {
+            _id: id,
+            email: email_addresses[0].email_address,
+            name: first_name + ' ' + last_name,
+            image: image_url,
+        }
+        // id ki base par user find karega aur naya data update kar dega
+        await User.findByIdAndUpdate(id, userData);
+    }
+);
+// Create an empty array where we'll export future Inngest functions
+export const functions = [syncUSerCreation, syncUserDeletion, syncUserUpdation];
