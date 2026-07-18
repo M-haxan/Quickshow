@@ -11,6 +11,7 @@ await connectDB();
 
 // Middleware
 app.use(exprees.json());
+
 app.use(cors());
 app.use(clerkMiddleware())
 
