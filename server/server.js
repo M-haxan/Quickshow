@@ -3,7 +3,7 @@ import cors from 'cors';
 import 'dotenv/config';
 import connectDB from './configs/db.js';
 import { clerkMiddleware } from '@clerk/express'
-import { serve } from "inngest/astro";
+import { serve } from "inngest/express";
 import { functions, inngest } from "./inngest/index.js";
 const app = exprees();
 const port = process.env.PORT || 5000;
