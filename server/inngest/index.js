@@ -55,13 +55,13 @@ const syncUserUpdation = inngest.createFunction(
 // ingest function to cancel booking when payment is note paid by user 
  const releaseSeatsAndDeleteBooking = inngest.createFunction(
     {id: 'release-seats-delete-booking', 
-    triggers: [{evennt: "app/checkPaymet"}]
+    triggers: [{event: "app/checkPaymet"}]
     },
     async({event, step})=>{
         const tenMinutesLater = new Date(Date.now() + 10 * 60 * 1000);
-        awaitstep.sleepUntil('wait-for-10-minutes', tenMinutesLater);
+        await step.sleepUntil('wait-for-10-minutes', tenMinutesLater);
         await step.run('check-payment-status', async()=>{
-            const {bookingId} = event.data.bookingId;
+            const {bookingId} = event.data;
             const booking = await Booking.findById(bookingId);
             // if payment is not made, release seats and delete booking 
             if(!booking.isPaid){
@@ -77,4 +77,4 @@ const syncUserUpdation = inngest.createFunction(
     }
  );
 // Create an empty array where we'll export future Inngest functions
-export const functions = [syncUSerCreation, syncUserDeletion, syncUserUpdation];
+export const functions = [syncUSerCreation, syncUserDeletion, syncUserUpdation, releaseSeatsAndDeleteBooking];
