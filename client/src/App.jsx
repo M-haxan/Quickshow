@@ -28,6 +28,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Home/>}/>
       <Route path="/movies" element = {<Movies/>}/>
+      <Route path="/movie/:id" element={<MovieDetails/>}/>
       <Route path="/my-bookings" element={<MyBookings/>}/>
       <Route path="/my-bookings" element={<MyBookings/>}/>
       <Route path="/loading/:nextUrl" element={<Loading/>}/>

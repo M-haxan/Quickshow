@@ -11,13 +11,14 @@ export const getDashboardData = async (req, res) =>{
     try {
         const bookings = await Booking.find({isPaid: true});
         const activeShows = await Show.find({showDateTime: {$gte: new Date()}}).populate('movie');
+        const validActiveShows = activeShows.filter(show => show.movie != null);
 
         const totalUser = await User.countDocuments();
 
         const dashboardData = {
             totalBookings: bookings.length,
             totalRevenue: bookings.reduce((acc, booking)=> acc + booking.amount, 0),
-            activeShows,
+            activeShows: validActiveShows,
             totalUser
         }
 

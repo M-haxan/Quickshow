@@ -49,7 +49,22 @@ const handleFavorite = async ()=>{
     getShow();
   }, [id]);
 
-  return show ? (
+  if (!show) {
+    return <Loading />;
+  }
+
+  if (!show.movie) {
+    return (
+      <div className='min-h-screen flex flex-col justify-center items-center text-white'>
+        <p className='text-xl font-medium'>Movie not found or has been deleted.</p>
+        <button onClick={() => navigate('/')} className='mt-4 px-6 py-2 bg-primary rounded-md text-sm font-medium'>
+          Go Home
+        </button>
+      </div>
+    );
+  }
+
+  return (
     <div className='px-6 md:px-16 lg:px-40 pt-30 md:pt-50'>
       <div className='flex flex-col md:flex-row gap-10 max-w-6xl mx-auto'>
 
@@ -138,8 +153,6 @@ const handleFavorite = async ()=>{
         </button>
       </div>
     </div>
-  ) : (
-    <Loading/>
   );
 }
 

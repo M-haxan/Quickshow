@@ -1,6 +1,7 @@
 import Show from "../models/Show.js"
 import Booking from "../models/Booking.js"
 import Stripe from "stripe";
+import { inngest } from "../inngest/index.js"
 
 // Function to check availability of selected seats for a movie
 const checkSeatsAvailability = async (showId, selectedSeats)=>{
@@ -34,6 +35,9 @@ export const createBooking = async (req, res)=>{
 
         // Get the show details
         const showData = await Show.findById(showId).populate('movie');
+        if (!showData || !showData.movie) {
+            return res.json({success: false, message: "Show or Movie not found."})
+        }
 
         // Create a new booking
         const booking = await Booking.create({

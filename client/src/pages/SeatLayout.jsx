@@ -6,7 +6,7 @@ import { dummyDateTimeData, dummyShowsData } from '../assets/assets'
 import isoTimeFormat from '../lib/isoTimeFormat'
 import BlurCircle from '../components/BlurCircle'
 import { assets } from '../assets/assets'
-import toast from 'react-hot-toast'
+import {toast} from 'react-hot-toast'
 import { useAppContext } from '../../context/AppContext'
 
 function SeatLayout() {
