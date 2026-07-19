@@ -3,10 +3,11 @@ import { ArrowRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import BlurCircle from './BlurCircle'
 import MovieCard from './MovieCard'
-import { dummyShowsData } from '../assets/assets'
+import { useAppContext } from '../../context/AppContext'
 
 function FeaturedSection() {
   const navigate = useNavigate()
+  const {shows } = useAppContext()
 
   return (
     <section className="relative w-full px-6 md:px-16 lg:px-36 py-16 bg-[#09090B] overflow-hidden">
@@ -39,7 +40,7 @@ function FeaturedSection() {
 
       {/* Movie Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 relative z-10">
-        {dummyShowsData.map((movie) => (
+        {shows.map((movie) => (
           <MovieCard key={movie._id || movie.id} movie={movie} />
         ))}
       </div>

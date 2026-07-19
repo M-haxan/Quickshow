@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import { dummyDateTimeData, dummyShowsData } from '../assets/assets';
 import BlueCircle from '../components/BlurCircle';
@@ -7,22 +8,42 @@ import timeFormate from '../lib/timeFormat';
 import DateSelect from '../components/DateSelect';
 import MovieCard from '../components/MovieCard';
 import Loading from '../components/Loading';
+import { useAppContext } from '../../context/AppContext';
 
 function MovieDetail() {
   const navigate = useNavigate()
   const { id } = useParams();
   const [show, setShow] = useState(null);
+  const [isUpdatingFavorite, setIsUpdatingFavorite] = useState(false);
+  const {shows, axios, getToken, user, fetchFavoriteMovies, favoriteMovies, image_base_url } = useAppContext()
 
-  const getShow = async () => {
-    const show = dummyShowsData.find((show) => show._id === id);
-    if(show){
-      setShow({
-      movie: show,
-      dateTime: dummyDateTimeData,
-    });
+  const getShow = async ()=>{
+    try {
+        const { data } = await axios.get(`/api/shows/${id}`)
+        if(data.success){
+            setShow(data)
+        }
+    } catch (error) {
+        console.log(error)
     }
-    
-  };
+}
+const handleFavorite = async ()=>{
+    try {
+        if(!user) return toast.error("Please login to proceed");
+        setIsUpdatingFavorite(true);
+        const { data } = await axios.post('/api/user/update-favorite', {movieId: id},
+        {headers: { Authorization: `Bearer ${await getToken()}` }})
+
+        if(data.success){
+            await fetchFavoriteMovies()
+            toast.success(data.message)
+        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        setIsUpdatingFavorite(false);
+    }
+}
 
   useEffect(() => {
     getShow();
@@ -34,7 +55,7 @@ function MovieDetail() {
 
         {/* Left Column: Image */}
         <img
-          src={show.movie.poster_path}
+          src={image_base_url + show.movie.poster_path}
           className='max-md:mx-auto rounded-xl h-104 max-w-70 object-cover'
           alt={show.movie.title}
         />
@@ -78,8 +99,8 @@ function MovieDetail() {
               </a>
 
               {/* Favorite (Heart) Button */}
-              <button className='bg-gray-700 p-3 rounded-md sm:rounded-full transition cursor-pointer active:scale-95 hover:bg-gray-600 shrink-0 flex justify-center items-center'>
-                <Heart className='w-5 h-5 text-white' />
+              <button onClick={handleFavorite} disabled={isUpdatingFavorite} className='bg-gray-700 p-3 rounded-md sm:rounded-full transition cursor-pointer active:scale-95 hover:bg-gray-600 shrink-0 flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed'>
+                <Heart className={`w-5 h-5 text-white ${favoriteMovies.find(movie=> movie._id === id)? 'fill-primary text-primary':""}`} />
               </button>
             </div>
 
@@ -91,7 +112,7 @@ function MovieDetail() {
         <div className='flex items-center gap-4 w-max px-4'>
           {show.movie.casts.slice(0,12).map((cast, index)=>(
             <div key={index} className='flex flex-col items-center text-center'>
-              <img src={cast.profile_path} alt="" className='w-24 h-24 rounded-full object-cover' />
+              <img src={image_base_url + cast.profile_path} alt="" className='w-24 h-24 rounded-full object-cover' />
               <p className='font-medium text-xs mt-3'>{cast.name}</p>
             </div>
           ))}
@@ -106,7 +127,7 @@ function MovieDetail() {
       
       {/* 2. Yahan flex-wrap ki jagah Grid classes laga di */}
       <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
-        {dummyShowsData.slice(0, 4).map((movie, index) => (
+        {shows.slice(0, 4).map((movie, index) => (
           <MovieCard key={index} movie={movie} />
         ))}
       </div>

@@ -1,9 +1,11 @@
 import React from 'react'
 import { Star } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useAppContext } from '../../context/AppContext'
 
 function MovieCard({ movie }) {
   const navigate = useNavigate()
+  const {image_base_url} = useAppContext()
 
   // Format date, genre, and runtime
   const year = movie.release_date ? movie.release_date.split('-')[0] : '2025'
@@ -21,7 +23,7 @@ function MovieCard({ movie }) {
         {/* Landscape Cover Image */}
         <div className="overflow-hidden rounded-xl aspect-video w-full relative bg-zinc-800">
           <img 
-            src={movie.backdrop_path || movie.poster_path} 
+            src={image_base_url + movie.backdrop_path || movie.poster_path} 
             alt={movie.title} 
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             loading="lazy"
