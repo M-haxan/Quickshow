@@ -56,7 +56,7 @@ const syncUserUpdation = inngest.createFunction(
 // ingest function to cancel booking when payment is note paid by user 
  const releaseSeatsAndDeleteBooking = inngest.createFunction(
     {id: 'release-seats-delete-booking', 
-    triggers: [{event: "app/checkPaymet"}]
+    triggers: [{event: "app/checkPayment"}]
     },
     async({event, step})=>{
         const tenMinutesLater = new Date(Date.now() + 10 * 60 * 1000);
@@ -65,7 +65,7 @@ const syncUserUpdation = inngest.createFunction(
             const {bookingId} = event.data;
             const booking = await Booking.findById(bookingId);
             // if payment is not made, release seats and delete booking 
-            if(!booking.isPaid){
+            if(booking && !booking.isPaid){
                 const show = await Show.findById(booking.show);
                 booking.bookedSeats.forEach((seat)=>{
                     delete show.occupiedSeats[seat];
@@ -89,21 +89,25 @@ const sendBookingConfirmationEmail = inngest.createFunction(
         const booking = await Booking.findById(bookingId).populate('user').populate({
             path: 'show',
             populate: {path: 'movie', model: 'Movie'}
-        }).papulate('user');
-        await sendEmail({
-            to: booking.user.email,
-            subject: `Payment Confirmation: "${booking.show.movie.title} "Booked!`,
-            body:` <div style="font-family: Arial, sans-serif; line-height: 1.5;">
-        <h2>Hi ${booking.user.name},</h2>
-        <p>Your booking for <strong style="color: #F84565;">"${booking.show.movie.title}"</strong> is confirmed.</p>
-        <p>
-            <strong>Date:</strong> ${new Date(booking.show.showDateTime).toLocaleDateString('en-US', { timeZone: 'Asia/Karachi' })}<br/>
-            <strong>Time:</strong> ${new Date(booking.show.showDateTime).toLocaleTimeString('en-US', { timeZone: 'Asia/Karachi' })}
-        </p>
-        <p>Enjoy the show! 🍿</p>
-        <p>Thanks for booking with us!<br/>- QuickShow Team</p>
-    </div>`
-        })
+        });
+        if (booking && booking.user) {
+            await step.run('send-email', async () => {
+                await sendEmail({
+                    to: booking.user.email,
+                    subject: `Payment Confirmation: "${booking.show.movie.title}" Booked!`,
+                    body: ` <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+                <h2>Hi ${booking.user.name},</h2>
+                <p>Your booking for <strong style="color: #F84565;">"${booking.show.movie.title}"</strong> is confirmed.</p>
+                <p>
+                    <strong>Date:</strong> ${new Date(booking.show.showDateTime).toLocaleDateString('en-US', { timeZone: 'Asia/Karachi' })}<br/>
+                    <strong>Time:</strong> ${new Date(booking.show.showDateTime).toLocaleTimeString('en-US', { timeZone: 'Asia/Karachi' })}
+                </p>
+                <p>Enjoy the show! 🍿</p>
+                <p>Thanks for booking with us!<br/>- QuickShow Team</p>
+            </div>`
+                });
+            });
+        }
     }
 )
 
