@@ -24,7 +24,7 @@ export const addShow = async (req, res) =>{
         if(!movie) {
             // Fetch movie details and credits from TMDB API
             const [movieDetailsResponse, movieCreditsResponse] = await Promise.all([
-                axios.get(`https://api.themoviedb.org/3/movie/${movieId}`, {
+                axios.get(`https://api.themoviedb.org/3/movie/${movieId}?append_to_response=videos`, {
                 headers: {Authorization : `Bearer ${process.env.TMDB_API_KEY}`}
             }),
             axios.get(`https://api.themoviedb.org/3/movie/${movieId}/credits`, {
@@ -32,6 +32,12 @@ export const addShow = async (req, res) =>{
             ])
             const movieApiData = movieDetailsResponse.data;
             const movieCreditsData = movieCreditsResponse.data;
+
+            // Find trailer URL
+            const videos = movieApiData.videos?.results || [];
+            const trailer = videos.find(v => v.type === "Trailer" && v.site === "YouTube") || videos.find(v => v.type === "Trailer") || videos[0];
+            const trailer_url = trailer ? `https://www.youtube.com/embed/${trailer.key}` : "";
+
           const movieDetails = {
     _id: movieId,
     title: movieApiData.title,
@@ -45,6 +51,7 @@ export const addShow = async (req, res) =>{
     tagline: movieApiData.tagline || "",
     vote_average: movieApiData.vote_average,
     runtime: movieApiData.runtime,
+    trailer_url: trailer_url,
 }  
 movie = await Movie.create(movieDetails);
         }
@@ -98,6 +105,23 @@ export const getShow = async (req, res) =>{
         Date() }})
 
         const movie = await Movie.findById(movieId);
+        if (movie && !movie.trailer_url) {
+            try {
+                const movieDetailsResponse = await axios.get(`https://api.themoviedb.org/3/movie/${movieId}?append_to_response=videos`, {
+                    headers: {Authorization : `Bearer ${process.env.TMDB_API_KEY}`}
+                });
+                const movieApiData = movieDetailsResponse.data;
+                const videos = movieApiData.videos?.results || [];
+                const trailer = videos.find(v => v.type === "Trailer" && v.site === "YouTube") || videos.find(v => v.type === "Trailer") || videos[0];
+                const trailer_url = trailer ? `https://www.youtube.com/embed/${trailer.key}` : "";
+                if (trailer_url) {
+                    movie.trailer_url = trailer_url;
+                    await movie.save();
+                }
+            } catch (err) {
+                console.error("Failed to fetch trailer on the fly:", err.message);
+            }
+        }
         const dateTime = {};
 
         shows.forEach((show) => {

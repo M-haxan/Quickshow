@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import { dummyDateTimeData, dummyShowsData } from '../assets/assets';
 import BlueCircle from '../components/BlurCircle';
-import { Heart, PlayCircleIcon, StarIcon } from 'lucide-react';
+import { Heart, PlayCircleIcon, StarIcon, X } from 'lucide-react';
 import timeFormate from '../lib/timeFormat';
 import DateSelect from '../components/DateSelect';
 import MovieCard from '../components/MovieCard';
@@ -15,6 +15,7 @@ function MovieDetail() {
   const { id } = useParams();
   const [show, setShow] = useState(null);
   const [isUpdatingFavorite, setIsUpdatingFavorite] = useState(false);
+  const [isTrailerOpen, setIsTrailerOpen] = useState(false);
   const {shows, axios, getToken, user, fetchFavoriteMovies, favoriteMovies, image_base_url } = useAppContext()
 
   const getShow = async ()=>{
@@ -102,7 +103,16 @@ const handleFavorite = async ()=>{
           <div className='flex flex-wrap sm:flex-nowrap items-stretch sm:items-center gap-3 mt-4 w-full max-sm:flex-col'>
 
             {/* Watch Trailer Button */}
-            <button className='w-full sm:w-auto flex justify-center items-center gap-2 px-6 py-3 text-sm bg-gray-800 hover:bg-gray-900 transition rounded-md font-medium cursor-pointer active:scale-95'>
+            <button 
+              onClick={() => {
+                if (show.movie.trailer_url) {
+                  setIsTrailerOpen(true);
+                } else {
+                  toast.error("Trailer not available for this movie");
+                }
+              }}
+              className='w-full sm:w-auto flex justify-center items-center gap-2 px-6 py-3 text-sm bg-gray-800 hover:bg-gray-900 transition rounded-md font-medium cursor-pointer active:scale-95'
+            >
               <PlayCircleIcon className="w-5 h-5 shrink-0" />
               <span className="whitespace-nowrap">Watch Trailer</span>
             </button>
@@ -152,6 +162,38 @@ const handleFavorite = async ()=>{
           Show More
         </button>
       </div>
+
+      {/* Trailer Modal */}
+      {isTrailerOpen && show.movie.trailer_url && (
+        <div 
+          className='fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 md:p-10 transition-all duration-300'
+          onClick={() => setIsTrailerOpen(false)}
+        >
+          <div 
+            className='relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl border border-gray-800'
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button 
+              onClick={() => setIsTrailerOpen(false)}
+              className='absolute top-4 right-4 bg-black/60 hover:bg-black/90 p-2 rounded-full text-white transition cursor-pointer z-10 hover:scale-110 active:scale-95'
+            >
+              <X className='w-6 h-6' />
+            </button>
+            {/* Iframe for YouTube Trailer */}
+            <div className='aspect-video w-full'>
+              <iframe
+                src={`${show.movie.trailer_url}?autoplay=1&rel=0`}
+                title={`${show.movie.title} Trailer`}
+                className='w-full h-full border-0'
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
