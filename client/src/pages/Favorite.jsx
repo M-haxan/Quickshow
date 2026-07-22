@@ -6,7 +6,7 @@ import { useAppContext } from '../../context/AppContext'
 function Favorite() {
   const {favoriteMovies} = useAppContext()
  return favoriteMovies.length>0? (
-    <div className='relative my-40 mb-60 md:px-16 lg:px-40 xl:px-44 overflow-hidden min-h-[80vh]'>
+    <div className='relative my-40 mb-60 px-6 md:px-16 lg:px-40 xl:px-44 overflow-hidden min-h-[80vh]'>
       <BlueCircle top="150px" left="0px"/>
       <BlueCircle bottom="50px" right="50px"/>
       <h1 className='text-lg font-medium my-4'>Your Favorite Movies</h1>
@@ -17,7 +17,10 @@ function Favorite() {
       </div>
     </div>
   ):(
-    <div>No movies available</div>
+    <div className='pt-32 min-h-[80vh] flex flex-col justify-center items-center text-gray-400 text-lg px-6 text-center relative overflow-hidden'>
+      <BlueCircle top="150px" left="10%"/>
+      <p>No favorite movies selected yet.</p>
+    </div>
   )
 
 }

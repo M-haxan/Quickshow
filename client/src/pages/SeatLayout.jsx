@@ -114,7 +114,7 @@ const bookTickets = async ()=>{
     <div className='flex flex-col md:flex-row px-6 md:px-16 lg:px-40 py-30 md:pt-50 gap-8'>
       
       {/* LEFT SIDEBAR: Timings Box */}
-      <div className='w-60 bg-primary/10 border border-primary/20 rounded-lg py-6 h-max md:sticky md:top-30'>
+      <div className='w-full md:w-60 bg-primary/10 border border-primary/20 rounded-lg py-6 h-max md:sticky md:top-30'>
         <p className='text-lg font-semibold px-6 mb-4'>Available Timings</p>
         
         <div className='space-y-1'>
@@ -132,26 +132,30 @@ const bookTickets = async ()=>{
         </div>
       </div>
 
-      <div className='relative flex-1 flex flex-col items-center max-md:mt-16'>
+      <div className='relative flex-1 flex flex-col items-center w-full max-md:mt-16 overflow-hidden'>
         <BlurCircle top="-100px" left="-100px"/>
-        <BlurCircle bottom="0px" rightt="0px"/>
-        <h1 className='text-2xl font-semibold mb-4'>Select Your Seat</h1>
-        <img src={assets.screenImage} alt="screen" />
+        <BlurCircle bottom="0px" right="0px"/>
+        <h1 className='text-2xl font-semibold mb-4 text-center'>Select Your Seat</h1>
+        <img src={assets.screenImage} alt="screen" className="max-w-full h-auto" />
         <p className='text-gray-400 text-sm mb-6'>SCREEN SIDE</p>
         
-        <div className='flex flex-col items-center mt-10 text-xs text-gray-300'>
-          <div>
-            {groupRows[0].map (row=> renderSeats(row))}
-          </div>
-          {/* Yahan grid-cols-2 kiya gaya hai taake block 2 columns mein aayein */}
-          <div className='grid grid-cols-2 gap-11 mt-4'>
-            {groupRows.slice(1).map((group, idx)=>(
-              <div key={idx}>
-                {group.map(row=> renderSeats(row))}
-              </div>
-            ))}
+        {/* Horizontal scroll container for smaller screens */}
+        <div className='w-full overflow-x-auto no-scrollbar pb-4 flex flex-col items-center'>
+          <div className='flex flex-col items-center mt-10 text-xs text-gray-300 min-w-max px-4'>
+            <div>
+              {groupRows[0].map (row=> renderSeats(row))}
+            </div>
+            {/* Grid stacks on mobile, split side-by-side on md screens and up */}
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-11 mt-4'>
+              {groupRows.slice(1).map((group, idx)=>(
+                <div key={idx}>
+                  {group.map(row=> renderSeats(row))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+        
           <button 
           onClick={bookTickets}
           disabled={isBooking}

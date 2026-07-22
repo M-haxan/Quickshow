@@ -17,9 +17,9 @@ function Navbar() {
                 <img src={assets.logo} alt='' className='w-36 h-auto'></img>
             </Link>
             <div className={`flex gap-8 flex-col max-md:absolute max-md:top-0 max-md:left-0 max-md:font-medium
-             max-md:text-lg z-50 md:flex-row items-center max-md:justify-center min-md:px-8 py-3 max-md:h-screen
-              min-md:rounded-full backdrop-blur bg-dark/70 md:bg-white/10 md:border border-gray-300/20 overflow-hidden
-               transition[width] duration-300 ${isOpen? 'max-md:w-full': 'max-md:w-0'}`}>
+             max-md:text-lg z-50 md:flex-row items-center max-md:justify-center md:px-8 py-3 max-md:h-screen
+              md:rounded-full backdrop-blur bg-dark/70 md:bg-white/10 md:border border-gray-300/20 overflow-hidden
+               transition-[width] duration-300 ${isOpen? 'max-md:w-full': 'max-md:w-0'}`}>
                 <XIcon className='md:hidden absolute top-6 right-6 w-6 h-6 cursor-pointer' onClick={()=>setIsOpen(!isOpen)} />
                 <Link to='/' onClick={()=>{scrollTo(0,0); setIsOpen(false)}}>Home</Link>
                 <Link to='/movies' onClick={()=>{scrollTo(0,0); setIsOpen(false)}}>Movies</Link>
