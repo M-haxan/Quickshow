@@ -86,13 +86,32 @@ export const getShows = async (req, res) =>{
         const shows = await Show.find({showDateTime: {$gte: new Date()}}).populate
         ('movie').sort({ showDateTime: 1 });
 
-        // filter unique shows
-        const uniqueShows = new Set(shows.map(show => show.movie).filter(movie => movie != null))
+        // filter unique shows using a Map to correctly filter objects by _id reference
+        const uniqueShowsMap = {};
+        shows.forEach(show => {
+            if (show.movie && !uniqueShowsMap[show.movie._id]) {
+                uniqueShowsMap[show.movie._id] = show.movie;
+            }
+        });
+        const uniqueShows = Object.values(uniqueShowsMap);
 
-        res.json({success: true, shows: Array.from(uniqueShows)})
+        res.json({success: true, shows: uniqueShows})
     } catch (error) {
         console.error(error);
         res.json({ success: false, message: error.message });
+    }
+}
+
+// API to get upcoming movies from TMDB
+export const getUpcomingMovies = async (req, res) => {
+    try {
+        const { data } = await axios.get('https://api.themoviedb.org/3/movie/upcoming', {
+            headers: { Authorization: `Bearer ${process.env.TMDB_API_KEY}` }
+        });
+        res.json({ success: true, movies: data.results });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: error.message || 'Failed to fetch upcoming movies' });
     }
 }
 
