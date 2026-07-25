@@ -52,11 +52,11 @@ function Releases() {
       <BlurCircle top="150px" left="0px" color="bg-primary" opacity="opacity-15" size="w-96 h-96" />
       <BlurCircle bottom="50px" right="50px" color="bg-primary" opacity="opacity-15" size="w-96 h-96" />
 
-      <h1 className='text-3xl font-semibold text-white tracking-wide mb-2'>Upcoming Releases</h1>
+      <h1 className='text-2xl font-semibold text-white tracking-wide mb-2'>
+        Upcoming Releases and Recntly Released Movies </h1>
       <p className='text-zinc-400 text-sm md:text-base mb-12 max-w-2xl font-light'>
         Get a sneak peek at the most anticipated movies coming soon to our theaters. Keep an eye out for booking launch dates!
       </p>
-
       {movies.length > 0 ? (
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 relative z-10'>
           {movies.map((movie) => {
@@ -98,7 +98,7 @@ function Releases() {
                 <div className="flex items-center justify-between mt-5 pt-3 border-t border-white/5">
                   <button 
                     disabled
-                    className="bg-zinc-800/80 border border-white/5 text-zinc-500 text-xs px-4 py-2 rounded-full font-medium flex items-center gap-1.5 cursor-not-allowed"
+                    className="bg-zinc-800/70 border border-white/5 text-zinc-500 text-xs px-4 py-2 rounded-full font-medium flex items-center gap-1.5 cursor-not-allowed"
                   >
                     <Lock className="w-3.5 h-3.5" />
                     <span>Booking Closed</span>
